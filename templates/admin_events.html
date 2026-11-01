@@ -1,0 +1,113 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Manage Events | D-campus{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-header">
+    <div>
+        <div class="eyebrow">ADMINISTRATION</div>
+
+        <h1>Manage college events</h1>
+
+        <p>
+            Publish scheduled events for students.
+        </p>
+    </div>
+</section>
+
+<section class="panel">
+    <form method="post" class="form-stack">
+
+        <label>
+            Event title
+            <input
+                type="text"
+                name="title"
+                required
+                maxlength="200"
+            >
+        </label>
+
+        <label>
+            Description
+            <textarea name="description"></textarea>
+        </label>
+
+        <label>
+            Date
+            <input
+                type="date"
+                name="event_date"
+                required
+            >
+        </label>
+
+        <label>
+            Start time
+            <input
+                type="time"
+                name="start_time"
+                required
+            >
+        </label>
+
+        <label>
+            Venue
+            <input
+                type="text"
+                name="venue"
+            >
+        </label>
+
+        <button type="submit" class="primary-button">
+            Create event
+        </button>
+
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Events</h2>
+
+    {% for event in events %}
+
+        <article class="card event-card">
+
+            <div class="event-card-head">
+                <h3>{{ event.title }}</h3>
+
+                <form
+                    method="post"
+                    action="{{ url_for('admin_delete_event', event_id=event.id) }}"
+                    onsubmit="return confirm('Delete this event? Students will no longer see it.');"
+                >
+                    <button type="submit" class="button button-danger" aria-label="Delete event {{ event.title }}">
+                        Delete
+                    </button>
+                </form>
+            </div>
+
+            <p>
+                {{ event.event_date }}
+                · {{ event.start_time }}
+                · {{ event.venue }}
+            </p>
+
+            <p>{{ event.description }}</p>
+
+            <span class="task-status">
+                {{ event.status }}
+            </span>
+
+        </article>
+
+    {% else %}
+
+        <p>No events yet.</p>
+
+    {% endfor %}
+</section>
+
+{% endblock %}

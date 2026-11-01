@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% if login_type == 'admin' %}
+    {% set page_title = 'Administrator sign in' %}
+    {% set page_subtitle = 'Access the administration workspace securely.' %}
+    {% set form_action = url_for('admin_login') %}
+    {% set role_heading = 'Institutional administration' %}
+    {% set role_description = 'Manage accounts, academic records, attendance, events, and institutional workflows from one secure workspace.' %}
+{% else %}
+    {% set page_title = 'Welcome back' %}
+    {% set page_subtitle = 'Sign in to continue your learning journey.' %}
+    {% set form_action = url_for('login') %}
+    {% set role_heading = 'Your academic workspace' %}
+    {% set role_description = 'Track academic progress, review attendance, organize study tasks, and get support for your learning goals.' %}
+{% endif %}
+
+{% block title %}{{ page_title }} | D-campus{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="auth-logo" aria-hidden="true"><span class="material-symbols-outlined">school</span></div>
+            <div>
+                <h1>{{ page_title }}</h1>
+                <p>{{ page_subtitle }}</p>
+            </div>
+        </div>
+
+        <div class="auth-intro">
+            <h2>{{ role_heading }}</h2>
+            <p>{{ role_description }}</p>
+        </div>
+
+        <form method="POST" action="{{ form_action }}" class="auth-form">
+            <div class="form-group">
+                <label for="email">Registered email address</label>
+                <input type="email" id="email" name="email"
+                       placeholder="you@example.com"
+                       value="{{ request.form.get('email', '') }}"
+                       autocomplete="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Enter your password"
+                       autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="button auth-submit">
+                Sign in securely <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            {% if login_type == 'student' %}
+                <p>New to D-campus? <a href="{{ url_for('register') }}">Create a student account</a></p>
+            {% endif %}
+            <p class="portal-switch">
+                {% if login_type != 'student' %}<a href="{{ url_for('login') }}">Student login</a>{% endif %}
+                
+                {% if login_type != 'admin' %} · <a href="{{ url_for('admin_login') }}">Admin login</a>{% endif %}
+            </p>
+            <a href="{{ url_for('index') }}" class="back-home">← Back to home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

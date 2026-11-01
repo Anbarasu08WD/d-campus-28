@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Overview | D-campus{% endblock %}
+
+{% block content %}
+{% set ns = namespace(present=0, absent=0, late=0, od=0) %}
+{% for item in attendance_records %}
+    {% if item.status == 'Present' %}{% set ns.present = ns.present + 1 %}
+    {% elif item.status == 'Absent' %}{% set ns.absent = ns.absent + 1 %}
+    {% elif item.status == 'Late' %}{% set ns.late = ns.late + 1 %}
+    {% elif item.status == 'Approved OD' %}{% set ns.od = ns.od + 1 %}{% endif %}
+{% endfor %}
+<section class="ui-page-heading">
+    <div><div class="eyebrow">ADMINISTRATION / ACADEMIC OPERATIONS</div><h1>Attendance overview</h1><p>Review submitted attendance records and open a session to record or update student attendance.</p></div>
+    <a class="primary-button" href="{{ url_for('admin_mark_attendance') }}"><span class="material-symbols-outlined">how_to_reg</span>Mark student attendance</a>
+</section>
+<section class="attendance-stats" aria-label="Attendance record summary">
+    <article class="attendance-stat"><div class="stat-label">Total records</div><div class="stat-number">{{ attendance_records|length }}</div><div class="stat-note">Attendance entries saved</div></article>
+    <article class="attendance-stat"><div class="stat-label">Present</div><div class="stat-number">{{ ns.present }}</div><div class="stat-note">Students marked present</div></article>
+    <article class="attendance-stat"><div class="stat-label">Absent</div><div class="stat-number">{{ ns.absent }}</div><div class="stat-note">Students marked absent</div></article>
+    <article class="attendance-stat"><div class="stat-label">Late / Approved OD</div><div class="stat-number">{{ ns.late + ns.od }}</div><div class="stat-note">{{ ns.late }} late · {{ ns.od }} approved OD</div></article>
+</section>
+<section class="panel">
+    <div class="panel-heading"><div><h2>Attendance records</h2><p>Most recent records are shown first.</p></div><span class="panel-tag">{{ attendance_records|length }} entries</span></div>
+    <div class="table-wrap"><table>
+        <thead><tr><th>Student</th><th>Subject / Class</th><th>Date</th><th>Status</th><th>Remarks</th></tr></thead>
+        <tbody>
+        {% for item in attendance_records %}
+        <tr>
+            <td><div class="attendance-student"><span class="student-avatar">{{ (item.student_name or 'S')[:1]|upper }}</span><span><strong>{{ item.student_name|default(item.student_id, true) }}</strong><small>Student ID: {{ item.student_id }}</small></span></div></td>
+            <td><strong>{{ item.subject|default('—', true) }}</strong>{% if item.class_id %}<div class="muted-text">{{ item.class_id }}</div>{% endif %}</td>
+            <td>{{ item.session_date|default('—', true) }}</td>
+            <td><span class="status-pill {% if item.status == 'Present' %}status-present{% elif item.status == 'Absent' %}status-absent{% elif item.status == 'Late' %}status-late{% else %}status-od{% endif %}">{{ item.status|default('—', true) }}</span></td>
+            <td>{{ item.remarks|default('—', true) }}</td>
+        </tr>
+        {% else %}<tr><td colspan="5"><div class="empty-state">No attendance entries found. Create a class session and mark attendance to see records here.</div></td></tr>{% endfor %}
+        </tbody>
+    </table></div>
+    <div class="attendance-savebar"><p>Need to add or correct entries? Open the attendance marking workspace.</p><a class="secondary-button" href="{{ url_for('admin_mark_attendance') }}">Open attendance workspace <span class="material-symbols-outlined">arrow_forward</span></a></div>
+</section>
+{% endblock %}

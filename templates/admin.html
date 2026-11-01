@@ -1,0 +1,178 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel | D-campus{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <div>
+        <div class="eyebrow">ADMIN WORKSPACE</div>
+        <h1>Student overview.</h1>
+        <p>Manage student accounts, academic performance, attendance and applications.</p>
+    </div>
+    <span class="panel-tag">ADMIN ACCESS</span>
+</section>
+
+<section class="metric-grid admin-summary">
+    <article class="metric-card">
+        <div class="metric-top">
+            <span>Student accounts</span>
+            <span class="metric-icon blue">♙</span>
+        </div>
+        <div class="metric-value">{{ counts.students }}</div>
+        <div class="metric-foot">Registered student profiles</div>
+    </article>
+
+    <article class="metric-card">
+        <div class="metric-top">
+            <span>Subject records</span>
+            <span class="metric-icon purple">▤</span>
+        </div>
+        <div class="metric-value">{{ records|length }}</div>
+        <div class="metric-foot">Marks and attendance entries</div>
+    </article>
+
+</section>
+
+
+
+<section class="panel motion-card">
+    <div class="panel-heading"><div><h2>Student administration</h2><p>Manage the student journey from one place.</p></div></div>
+    <div class="hero-actions">
+        <a class="button" href="{{ url_for('admin_users') }}">Student accounts</a>
+        <a class="button button-secondary" href="{{ url_for('admin_attendance') }}">Attendance overview</a>
+        <a class="button button-secondary" href="{{ url_for('admin_mark_attendance') }}">Mark attendance</a>
+        <a class="button button-secondary" href="{{ url_for('admin_student_applications') }}">Review leave / OD</a>
+        <a class="button button-secondary" href="{{ url_for('admin_events') }}">Manage events</a>
+        <a class="button button-secondary" href="{{ url_for('admin_feedback') }}">Review feedback</a>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <h2>Student summary</h2>
+            <p>Performance and attendance across recorded subjects.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Average</th>
+                    <th>Attendance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summary %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.email }}</td>
+                    <td><strong>{{ item.average }}%</strong></td>
+                    <td>{{ item.attendance }}%</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">No student records available yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel admin-records">
+    <div class="panel-heading">
+        <div>
+            <h2>Update academic records</h2>
+            <p>Edit marks and attendance for individual student subjects.</p>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Subject</th>
+                    <th>Marks / 100</th>
+                    <th>Classes attended / total</th>
+                    <th>Save</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>
+                        {{ record.student_name }}
+                        <form
+                            id="record-form-{{ record.id }}"
+                            method="post"
+                            action="{{ url_for('admin') }}"
+                        >
+                            <input type="hidden" name="student_id"
+                                   value="{{ record.student_id }}">
+                            <input type="hidden" name="record_id"
+                                   value="{{ record.id }}">
+                        </form>
+                    </td>
+                    <td>{{ record.subject }}</td>
+                    <td>
+                        <input
+                            class="table-input"
+                            type="number"
+                            name="marks"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value="{{ record.marks }}"
+                            form="record-form-{{ record.id }}"
+                            required
+                        >
+                    </td>
+                    <td>
+                        <div class="inline-inputs">
+                            <input
+                                class="table-input"
+                                type="number"
+                                name="attended_classes"
+                                min="0"
+                                value="{{ record.attended_classes }}"
+                                form="record-form-{{ record.id }}"
+                                required
+                            >
+                            <span>/</span>
+                            <input
+                                class="table-input"
+                                type="number"
+                                name="total_classes"
+                                min="1"
+                                value="{{ record.total_classes }}"
+                                form="record-form-{{ record.id }}"
+                                required
+                            >
+                        </div>
+                    </td>
+                    <td>
+                        <button
+                            class="button button-small"
+                            type="submit"
+                            form="record-form-{{ record.id }}"
+                        >
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">No academic records available to update.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

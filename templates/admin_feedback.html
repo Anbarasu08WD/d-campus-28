@@ -1,0 +1,81 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Feedback Review | D-campus{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-header">
+    <div>
+        <div class="eyebrow">ADMINISTRATION</div>
+
+        <h1>Student feedback</h1>
+
+        <p>
+            Review submissions and send responses.
+        </p>
+    </div>
+</section>
+
+<section class="panel">
+
+    {% for item in feedback_items %}
+
+        <article class="card">
+
+            <h3>{{ item.topic }}</h3>
+
+            <p>
+                <strong>{{ item.student_name }}</strong>
+                · {{ item.student_email }}
+            </p>
+
+            <p>{{ item.message }}</p>
+
+            <span class="task-status">
+                {{ item.status }}
+            </span>
+
+            <form
+                method="post"
+                action="{{ url_for(
+                    'respond_to_feedback',
+                    feedback_id=item.id
+                ) }}"
+                class="form-stack"
+            >
+                <label>
+                    Status
+
+                    <select name="status">
+                        <option>Under Review</option>
+                        <option>Responded</option>
+                        <option>Closed</option>
+                    </select>
+                </label>
+
+                <label>
+                    Response
+
+                    <textarea
+                        name="response"
+                        maxlength="5000"
+                    ></textarea>
+                </label>
+
+                <button class="primary-button">
+                    Save response
+                </button>
+            </form>
+
+        </article>
+
+    {% else %}
+
+        <p>No feedback submissions.</p>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}

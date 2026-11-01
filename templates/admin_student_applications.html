@@ -1,0 +1,135 @@
+ {% extends 'base.html' %}
+
+{% block title %}Student Applications | D-campus{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <p class="eyebrow">ADMINISTRATION</p>
+            <h1>Student Leave and OD Applications</h1>
+            <p class="muted-text">Review pending student requests and record your decision.</p>
+        </div>
+
+        <div class="card">
+            <h2>Student Leave Requests</h2>
+
+            {% if leave_requests %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Leave type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Reason</th>
+                            <th>Status / Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in leave_requests %}
+                        <tr>
+                            <td>{{ item['student_name'] }}</td>
+                            <td>{{ item['student_email'] }}</td>
+                            <td>{{ item['leave_type'] }}</td>
+                            <td>{{ item['start_date'] }}</td>
+                            <td>{{ item['end_date'] }}</td>
+                            <td>{{ item['reason'] }}</td>
+                            <td>
+                                {% if item['status'] == 'Pending' %}
+                                <form method="post"
+                                      action="{{ url_for('review_student_application', kind='leave', application_id=item['id']) }}">
+                                    <div class="form-group">
+                                        <label for="leave-remarks-{{ item['id'] }}">Remarks (optional)</label>
+                                        <textarea class="form-control"
+                                                  id="leave-remarks-{{ item['id'] }}"
+                                                  name="remarks"
+                                                  rows="2"
+                                                  maxlength="2000"></textarea>
+                                    </div>
+                                    <button class="primary-button" type="submit" name="status" value="Approved">
+                                        Approve
+                                    </button>
+                                    <button class="outline-button" type="submit" name="status" value="Rejected">
+                                        Reject
+                                    </button>
+                                </form>
+                                {% else %}
+                                <strong>{{ item['status'] }}</strong>
+                                <p class="muted-text">{{ item['decision_remarks'] or 'No remarks' }}</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="muted-text">There are no student leave applications yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="card mt-4">
+            <h2>Student On-Duty (OD) Requests</h2>
+
+            {% if od_requests %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>OD category</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Purpose</th>
+                            <th>Status / Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in od_requests %}
+                        <tr>
+                            <td>{{ item['student_name'] }}</td>
+                            <td>{{ item['student_email'] }}</td>
+                            <td>{{ item['category'] }}</td>
+                            <td>{{ item['start_date'] }}</td>
+                            <td>{{ item['end_date'] }}</td>
+                            <td>{{ item['reason'] }}</td>
+                            <td>
+                                {% if item['status'] == 'Pending' %}
+                                <form method="post"
+                                      action="{{ url_for('review_student_application', kind='od', application_id=item['id']) }}">
+                                    <div class="form-group">
+                                        <label for="od-remarks-{{ item['id'] }}">Remarks (optional)</label>
+                                        <textarea class="form-control"
+                                                  id="od-remarks-{{ item['id'] }}"
+                                                  name="remarks"
+                                                  rows="2"
+                                                  maxlength="2000"></textarea>
+                                    </div>
+                                    <button class="primary-button" type="submit" name="status" value="Approved">
+                                        Approve
+                                    </button>
+                                    <button class="outline-button" type="submit" name="status" value="Rejected">
+                                        Reject
+                                    </button>
+                                </form>
+                                {% else %}
+                                <strong>{{ item['status'] }}</strong>
+                                <p class="muted-text">{{ item['decision_remarks'] or 'No remarks' }}</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="muted-text">There are no student OD applications yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

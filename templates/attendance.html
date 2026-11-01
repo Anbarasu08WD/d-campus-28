@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}My Attendance | D-campus{% endblock %}
+
+{% block content %}
+{% set ns = namespace(present=0, absent=0, late=0, od=0) %}
+{% for item in attendance_records %}
+    {% if item.status == 'Present' %}{% set ns.present = ns.present + 1 %}
+    {% elif item.status == 'Absent' %}{% set ns.absent = ns.absent + 1 %}
+    {% elif item.status == 'Late' %}{% set ns.late = ns.late + 1 %}
+    {% elif item.status == 'Approved OD' %}{% set ns.od = ns.od + 1 %}{% endif %}
+{% endfor %}
+{% set total = attendance_records|length %}
+{% set attended_count = ns.present + ns.late + ns.od %}
+{% set present_rate = (attended_count / total * 100) if total else 0 %}
+{% set target_rate = 75 %}
+{% set target_gap = [target_rate - present_rate, 0]|max %}
+<section class="ui-page-heading">
+    <div><div class="eyebrow">ACADEMIC RECORDS</div><h1>Attendance tracking</h1><p>Track your attendance rate, subject-wise consistency and recorded sessions. Request a correction if something looks incorrect.</p></div>
+    <span class="panel-tag">{{ total }} recorded session{{ '' if total == 1 else 's' }}</span>
+</section>
+<section class="attendance-stats" aria-label="Attendance summary">
+    <article class="attendance-stat"><div class="stat-label">Present</div><div class="stat-number">{{ ns.present }}</div><div class="stat-note">Sessions marked present</div></article>
+    <article class="attendance-stat"><div class="stat-label">Absent</div><div class="stat-number">{{ ns.absent }}</div><div class="stat-note">Sessions marked absent</div></article>
+    <article class="attendance-stat"><div class="stat-label">Late</div><div class="stat-number">{{ ns.late }}</div><div class="stat-note">Late arrivals recorded</div></article>
+    <article class="attendance-stat"><div class="stat-label">Approved OD</div><div class="stat-number">{{ ns.od }}</div><div class="stat-note">Approved on-duty sessions</div></article>
+</section>
+<section class="panel attendance-progress-panel">
+    <div class="panel-heading"><div><h2>Overall attendance rate</h2><p>Present, late and approved on-duty sessions count as attended.</p></div><strong class="attendance-rate-value">{{ present_rate|round(1) }}%</strong></div>
+    <div class="attendance-progress-track" role="progressbar" aria-label="Overall attendance rate" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ present_rate|round(1) }}"><span style="width: 0" data-fill="{{ [present_rate, 100]|min|round(1) }}"></span></div>
+    <div class="attendance-guidance"><span>Recommended target: {{ target_rate }}%</span>{% if total == 0 %}<strong>No sessions recorded yet</strong>{% elif present_rate >= target_rate %}<strong class="attendance-good">You are meeting the target</strong>{% else %}<strong class="attendance-alert">You are {{ target_gap|round(1) }} percentage points below the target</strong>{% endif %}</div>
+</section>
+<section class="panel">
+    <div class="panel-heading"><div><h2>Subject-wise attendance</h2><p>Compare attendance across your subjects.</p></div></div>
+    {% if attendance_by_subject %}
+    <div class="subject-attendance-list">
+        {% for subject in attendance_by_subject %}
+        {% set rate = (subject.attended_sessions / subject.total_sessions * 100) if subject.total_sessions else 0 %}
+        <div class="subject-attendance-row"><div class="subject-attendance-copy"><strong>{{ subject.subject }}</strong><span>{{ subject.attended_sessions }}/{{ subject.total_sessions }} attended · {{ subject.absent_sessions }} absent</span></div><div class="subject-attendance-bar"><span style="width: 0" data-fill="{{ [rate, 100]|min|round(1) }}"></span></div><strong class="subject-attendance-percent">{{ rate|round(1) }}%</strong></div>
+        {% endfor %}
+    </div>
+    {% else %}<p class="empty-state">Subject-wise details will appear after attendance is recorded.</p>{% endif %}
+</section>
+<section class="panel">
+    <div class="attendance-toolbar"><div><h2>Attendance history</h2><p>Your recorded sessions, newest first.</p></div></div>
+    <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Subject / Class</th><th>Status</th><th>Remarks</th></tr></thead>
+        <tbody>
+        {% for item in attendance_records %}
+        <tr>
+            <td><strong>{{ item.session_date }}</strong></td>
+            <td><strong>{{ item.subject }}</strong>{% if item.class_id %}<div class="muted-text">{{ item.class_id }}</div>{% endif %}</td>
+            <td><span class="status-pill {% if item.status == 'Present' %}status-present{% elif item.status == 'Absent' %}status-absent{% elif item.status == 'Late' %}status-late{% else %}status-od{% endif %}">{{ item.status }}</span></td>
+            <td>{{ item.remarks|default('—', true) }}</td>
+        </tr>
+        {% else %}<tr><td colspan="4"><div class="empty-state">No attendance records are available yet. Your records will appear here after a session is marked.</div></td></tr>{% endfor %}
+        </tbody>
+    </table></div>
+</section>
+<section class="panel">
+    <div class="panel-heading"><div><h2>Request an attendance correction</h2><p>If a record is incorrect, select the session and explain what needs to be reviewed.</p></div><span class="metric-icon"><span class="material-symbols-outlined">edit_note</span></span></div>
+    {% if attendance_records %}
+    <form method="post" action="{{ url_for('attendance_correction') }}" class="form-stack">
+        <label for="attendance-session">Attendance record
+            <select id="attendance-session" name="session_id" required>
+                {% for item in attendance_records %}<option value="{{ item.session_id }}">{{ item.session_date }} — {{ item.subject }} ({{ item.status }})</option>{% endfor %}
+            </select>
+        </label>
+        <label for="correction-reason">Reason
+            <textarea id="correction-reason" name="reason" required maxlength="2000" placeholder="Describe the correction needed…"></textarea>
+        </label>
+        <div><button type="submit" class="primary-button">Submit correction request <span class="material-symbols-outlined">arrow_forward</span></button></div>
+    </form>
+    {% else %}<p class="empty-state">You can submit a correction request once an attendance record is available.</p>{% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var bars = document.querySelectorAll('[data-fill]');
+    bars.forEach(function (bar) {
+        var value = parseFloat(bar.getAttribute('data-fill')) || 0;
+        value = Math.max(0, Math.min(value, 100));
+        bar.style.transition = 'width 1s cubic-bezier(.16, 1, .3, 1)';
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { bar.style.width = value + '%'; });
+        });
+    });
+})();
+</script>
+{% endblock %}
