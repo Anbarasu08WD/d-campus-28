@@ -5,6 +5,8 @@ from datetime import date, datetime
 from functools import wraps
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
 from flask import (
     Flask, render_template, request, redirect, url_for,
     flash, session, abort, jsonify
@@ -15,10 +17,10 @@ from database import (
     init_db,
     get_db,
     seed_demo_data,
-    seed_learning_data,
+   # seed_learning_data,
 )
 from analytics import calculate_performance
-
+load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv(
@@ -42,7 +44,7 @@ LEARNING_STATUSES = {"Active", "Paused", "Completed", "Cancelled"}
 with app.app_context():
     init_db()
     seed_demo_data()
-    seed_learning_data()
+   # seed_learning_data()
 
 
 # ---------------------------------------------------------
