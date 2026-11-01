@@ -1,61 +1,136 @@
-# D-campus — Student Success Platform
+# D-Campus — Student Management System
 
-D-campus is a Flask and SQLite student success platform with two supported account types: **Student** and **Admin**. This version retains the existing Stitch-inspired interface, student theme customizer, academic tools and student attendance workflows with staff, mentor and advisor features removed entirely.
+D-Campus is a web-based student management system designed to help educational institutions manage student information, academic records, attendance, and student activities through separate administrator and student portals.
 
-## Account workflow
+## Live Demo
 
-- Student login: `/login` or `/student/login` → student dashboard.
-- Admin login: `/admin/login` → administrator dashboard.
-- The database role is authoritative; only `student` and `admin` roles exist.
-- Admin can create and manage only Student and Admin accounts.
+- **Website:** [Add your Vercel URL]
+- **GitHub Repository:** [Add your GitHub repository URL]
 
-## Admin workspace
+## Features
 
-The administrator can manage student accounts, review academic performance, update marks, create class sessions, mark student attendance, review attendance, process student leave/OD applications, publish events and respond to feedback.
+### Administrator
+- Admin authentication and dashboard
+- Student account and academic record management
+- Attendance session creation and attendance marking
+- Attendance reports and correction request review
+- Leave and On-Duty (OD) application review
+- Student feedback management
+- College event and notification management
 
-## Student workspace
+### Student
+- Student registration and authentication
+- Dashboard with academic and attendance information
+- Attendance history and correction requests
+- Leave and OD applications
+- Academic performance tracking
+- Feedback submission
+- College events and notifications
 
-Students retain the dashboard, attendance history, subject-wise attendance, attendance correction requests, education-level estimate, study planner, events, feedback and other existing student learning features.
+## Technology Stack
 
-## Attendance details
+- **Backend:** Python, Flask
+- **Database:** PostgreSQL (Neon)
+- **Database Driver:** Psycopg 3
+- **Frontend:** HTML, CSS, JavaScript, Jinja2
+- **Authentication:** Flask sessions and Werkzeug password hashing
+- **Deployment:** Vercel
+- **Version Control:** Git and GitHub
 
-The student attendance page displays counts for Present, Absent, Late and Approved OD, an overall attendance rate, a 75% recommended target indicator, subject-wise attendance percentages, session history and a correction-request form. Present, Late and Approved OD count as attended for the overall rate. The target is a guidance indicator, not an institutional rule; adjust it to match your institution's policy if needed.
+## Project Structure
 
-Administrators can use **Mark attendance** to create a class session and mark each student as Present, Absent, Late or Approved OD. The Attendance Overview page shows recorded sessions and attendance data.
+```text
+D-campus/
+├── app.py
+├── database.py
+├── analytics.py
+├── migrate_sqlite_to_neon.py
+├── requirements.txt
+├── templates/
+├── static/
+├── .env
+└── README.md
+```
 
-## Student theme customizer
+## Local Setup
 
-Students can select six accent palettes: **Blue, Light Pink, Light Green, Light Purple, Black and Teal**. The page background remains white. The preference is saved in the `users.theme` SQLite column and restored on the next login. Admin pages retain the default blue styling.
+### Requirements
 
-## Run on Windows / VS Code
+- Python 3.10 or newer
+- PostgreSQL database (Neon recommended)
+- Git
 
-Use Python 3.10+ (Python 3.12 is recommended where available).
+### 1. Clone the repository
+
+```bash
+git clone <your-github-repository-url>
+cd D-campus
+```
+
+### 2. Create and activate a virtual environment
+
+**Windows PowerShell:**
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+### 3. Install dependencies
+
+```bash
 python -m pip install -r requirements.txt
-$env:SECRET_KEY = "replace-with-a-long-random-secret"
+```
+
+### 4. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL="your_neon_postgresql_connection_string"
+SECRET_KEY="your_secret_key"
+```
+
+Keep `.env` private. Do not commit it to GitHub.
+
+### 5. Run the application
+
+```bash
 python app.py
 ```
 
-Open `http://127.0.0.1:5000` in your browser. Back up `student_success.db` before replacing an existing project folder. Do not expose demo credentials or the database publicly.
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
 
-## Demo accounts
+## Database
 
-Only the administrator account `admin@demo.com` is created automatically (if missing). Students register through the Create account page. To wipe all non-admin users from a database, run `python remove_non_admin_users.py`.
+D-Campus uses PostgreSQL hosted on Neon for persistent data storage. The application initializes its database schema and seeds required learning data when it starts.
 
-## Main files
+The project also includes a migration script for transferring existing SQLite application data into Neon:
 
-- `app.py` — routes, authentication, role checks and workflows.
-- `database.py` / `init_db.py` — SQLite schema and initialization.
-- `analytics.py` / `recommendations.py` — academic calculations and recommendations.
-- `templates/` — Flask/Jinja pages.
-- `static/css/` and `static/js/` — Stitch-inspired UI, responsive styles and interactions.
-- `templates/how_it_works.html` — public page explaining the prediction formula, with a live calculator that uses the same weights and bands as the backend.
-- `tests/` — existing analytics tests.
+```bash
+python migrate_sqlite_to_neon.py
+```
 
-## Notes
+**Warning:** The migration script replaces matching application tables in Neon. Back up your database before running it.
 
-The education-level estimate is an indicative performance-based estimate, not an official qualification or guaranteed prediction. The application is a development project, not a production-ready student information system. Before deployment, configure a strong secret key, HTTPS, CSRF protection, secure hosting, database backups and institution-approved access policies. Respect reduced-motion preferences; the UI animations are intentionally subtle.
+## Deployment
+
+The application is deployed on Vercel.
+
+Configure the following environment variables in your Vercel project settings:
+
+- `DATABASE_URL`
+- `SECRET_KEY`
+
+Set them for the Production environment, then deploy the project.
+
+## Security Notes
+
+- Never commit `.env` files, database credentials, or private keys.
+- Use a strong, unique `SECRET_KEY` in production.
+- Use secure passwords for administrator and student accounts.
+- Keep database backups before performing migrations.
+
+## License
+
+Add the license applicable to your project here.
