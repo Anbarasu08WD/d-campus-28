@@ -1,6 +1,6 @@
 import os
 import re
-import sqlite3
+import psycopg
 from datetime import date, datetime
 from functools import wraps
 from urllib.parse import urlparse
@@ -26,18 +26,7 @@ app.config["SECRET_KEY"] = os.getenv(
     "dev-only-change-this-secret-key"
 )
 
-if os.getenv("VERCEL"):
-    # Temporary database for Vercel demo/testing only.
-    app.config["DATABASE"] = os.getenv(
-        "DATABASE_PATH",
-        "/tmp/student_success.db"
-    )
-else:
-    # Preserve the existing local Windows database.
-    app.config["DATABASE"] = os.path.join(
-        app.root_path,
-        "student_success.db"
-    )
+# PostgreSQL connection is read from DATABASE_URL (Neon in production).
 
 
 ROLES = {"student", "admin"}
@@ -140,7 +129,7 @@ def audit_action(action, entity_type, entity_id=None, details=""):
                 details[:1000],
             ),
         )
-    except sqlite3.OperationalError:
+    except psycopg.OperationalError:
         # The final database migration will create this table.
         # Do not pretend an audit record was saved.
         app.logger.warning("Audit table is not available yet.")
@@ -227,12 +216,12 @@ def register():
                     """,
                     (student_id, college, registration_no),
                 )
-            except sqlite3.OperationalError:
+            except psycopg.OperationalError:
                 pass
 
             db.commit()
 
-        except sqlite3.IntegrityError:
+        except psycopg.IntegrityError:
             db.rollback()
             flash("That email is already registered.", "warning")
             return render_template("register.html")
@@ -379,7 +368,7 @@ def dashboard():
             """,
             (student_id,),
         ).fetchall()
-    except sqlite3.OperationalError:
+    except psycopg.OperationalError:
         paths = []
 
     try:
@@ -392,7 +381,7 @@ def dashboard():
             """,
             (student_id,),
         ).fetchall()
-    except sqlite3.OperationalError:
+    except psycopg.OperationalError:
         notifications = []
 
     # Convert SQLite Row objects to ordinary dictionaries.
@@ -1134,7 +1123,7 @@ def admin_users():
             db.commit()
             flash("User account created.", "success")
 
-        except sqlite3.IntegrityError:
+        except psycopg.IntegrityError:
             db.rollback()
             flash("That email is already registered.", "warning")
 
@@ -1697,7 +1686,7 @@ def admin_mark_attendance():
                    LEFT JOIN student_attendance a
                      ON a.student_id = u.id AND a.session_id = ?
                    WHERE u.role = 'student'
-                   ORDER BY u.name COLLATE NOCASE""",
+                   ORDER BY lower(u.name)""",
                 (selected_id,),
             ).fetchall()
 
