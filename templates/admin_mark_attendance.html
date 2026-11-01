@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Student Attendance | D-campus{% endblock %}
+
+{% block content %}
+<section class="ui-page-heading">
+    <div><div class="eyebrow">ADMINISTRATION / ACADEMIC OPERATIONS</div><h1>Mark student attendance</h1><p>Create a class session, then record or correct attendance for each student.</p></div>
+    <a class="outline-button" href="{{ url_for('admin_attendance') }}"><span class="material-symbols-outlined">fact_check</span>Attendance overview</a>
+</section>
+
+<section class="panel">
+    <div class="panel-heading"><div><h2><span class="step-number">01</span> Create a class session</h2><p>Set the class details before recording attendance.</p></div><span class="panel-tag">New session</span></div>
+    <form method="post" action="{{ url_for('admin_mark_attendance') }}" class="form-grid">
+        <input type="hidden" name="action" value="create_session">
+        <label for="session-date">Session date<input id="session-date" type="date" name="session_date" value="{{ today }}" required></label>
+        <label for="session-subject">Subject<input id="session-subject" type="text" name="subject" maxlength="120" placeholder="e.g. Database Systems" required></label>
+        <label for="session-class">Class / group <span class="field-optional">Optional</span><input id="session-class" type="text" name="class_id" maxlength="80" placeholder="e.g. CSE-A"></label>
+        <label for="session-start">Start time <span class="field-optional">Optional</span><input id="session-start" type="time" name="start_time"></label>
+        <label for="session-end">End time <span class="field-optional">Optional</span><input id="session-end" type="time" name="end_time"></label>
+        <div class="form-actions"><button type="submit" class="primary-button"><span class="material-symbols-outlined">add</span>Create class session</button></div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-heading"><div><h2><span class="step-number">02</span> Select a class session</h2><p>Choose a session to load the student list and any previously saved statuses.</p></div><span class="panel-tag">{{ sessions|length }} recent sessions</span></div>
+    <form method="get" action="{{ url_for('admin_mark_attendance') }}" class="form-inline">
+        <label for="session_id">Class session</label>
+        <select id="session_id" name="session_id" required>
+            <option value="">Choose a session…</option>
+            {% for item in sessions %}<option value="{{ item.id }}" {% if selected_session and selected_session.id == item.id %}selected{% endif %}>{{ item.session_date }} · {{ item.subject }}{% if item.class_id %} · {{ item.class_id }}{% endif %}{% if item.start_time %} · {{ item.start_time }}{% endif %}</option>{% endfor %}
+        </select>
+        <button type="submit" class="secondary-button">Load students <span class="material-symbols-outlined">arrow_forward</span></button>
+    </form>
+    {% if not sessions %}<p class="empty-state">No class sessions yet. Create a session above to begin marking attendance.</p>{% endif %}
+</section>
+
+{% if selected_session %}
+<section class="panel">
+    <div class="panel-heading"><div><h2><span class="step-number">03</span> Record attendance</h2><p><strong>{{ selected_session.subject }}</strong>{% if selected_session.class_id %} · {{ selected_session.class_id }}{% endif %} · {{ selected_session.session_date }}{% if selected_session.start_time %} · {{ selected_session.start_time }}{% endif %}{% if selected_session.end_time %}–{{ selected_session.end_time }}{% endif %}</p></div><span class="panel-tag">{{ students|length }} students</span></div>
+    {% if students %}
+    <form method="post" action="{{ url_for('admin_mark_attendance') }}" id="attendance-entry-form">
+        <input type="hidden" name="action" value="save_attendance">
+        <input type="hidden" name="session_id" value="{{ selected_session.id }}">
+        <div class="attendance-toolbar"><div><h2>Student register</h2><p>Choose a status for each student. Existing entries are preselected.</p></div><span class="panel-tag">{{ students|length }} records</span></div>
+        <div class="table-wrap"><table class="attendance-entry-table">
+            <thead><tr><th>Student</th><th>Attendance status</th><th>Remarks <span class="field-optional">Optional</span></th></tr></thead>
+            <tbody>
+            {% for student in students %}
+            <tr>
+                <td><div class="attendance-student"><span class="student-avatar">{{ (student.name or 'S')[:1]|upper }}</span><span><strong>{{ student.name }}</strong><small>{{ student.email }}</small></span></div></td>
+                <td><label class="visually-hidden" for="status-{{ student.id }}">Attendance status for {{ student.name }}</label><select class="attendance-status-select" id="status-{{ student.id }}" name="status_{{ student.id }}" required>{% for status in attendance_statuses %}<option value="{{ status }}" {% if student.status == status or (not student.status and status == 'Present') %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></td>
+                <td><label class="visually-hidden" for="remarks-{{ student.id }}">Remarks for {{ student.name }}</label><input class="remarks-input" id="remarks-{{ student.id }}" type="text" name="remarks_{{ student.id }}" maxlength="500" value="{{ student.remarks|default('', true) }}" placeholder="Add a note…"></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table></div>
+        <div class="attendance-savebar"><p><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">info</span> Saving updates existing records for this session where applicable.</p><button type="submit" class="primary-button"><span class="material-symbols-outlined">save</span>Save attendance</button></div>
+    </form>
+    {% else %}<p class="empty-state">No student accounts were found. Once student accounts are available, they will appear here.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

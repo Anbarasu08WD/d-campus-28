@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard | D-campus{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+{% set average_width = [[average|default(0)|float, 0]|max, 100]|min %}
+{% set attendance_width = [[attendance|default(0)|float, 0]|max, 100]|min %}
+{% set assignment_width = [[assignment_rate|default(0)|float, 0]|max, 100]|min %}
+<section class="student-welcome">
+    <div>
+        <div class="welcome-kicker">YOUR LEARNING OVERVIEW</div>
+        <h1>Welcome back, {{ session.get('user_name', 'Student') }}.</h1>
+        <p>Here’s a clear view of your academic progress and the next steps to focus on.</p>
+    </div>
+    <div class="welcome-icon" aria-hidden="true"><span class="material-symbols-outlined">school</span></div>
+</section>
+
+<section class="metric-grid" aria-label="Academic summary">
+    <article class="metric-card stat-card">
+        <div class="metric-top"><span>Average score</span><span class="metric-icon"><span class="material-symbols-outlined">monitoring</span></span></div>
+        <div class="metric-value">{{ average|default(0)|round(1) }}<small class="metric-unit">%</small></div>
+        <div class="progress" role="progressbar" aria-label="Average score" aria-valuenow="{{ average_width|round|int }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" data-width="{{ average_width|round(1) }}" style="width:0%"></div></div>
+        <div class="metric-foot">Based on your available academic records</div>
+    </article>
+    <article class="metric-card stat-card">
+        <div class="metric-top"><span>Attendance</span><span class="metric-icon"><span class="material-symbols-outlined">co_present</span></span></div>
+        <div class="metric-value">{{ attendance|default(0)|round(1) }}<small class="metric-unit">%</small></div>
+        <div class="progress" role="progressbar" aria-label="Attendance" aria-valuenow="{{ attendance_width|round|int }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" data-width="{{ attendance_width|round(1) }}" style="width:0%"></div></div>
+        <div class="metric-foot"><a href="{{ url_for('student_attendance') }}">Review attendance records →</a></div>
+    </article>
+    <article class="metric-card stat-card">
+        <div class="metric-top"><span>Task completion</span><span class="metric-icon"><span class="material-symbols-outlined">task_alt</span></span></div>
+        <div class="metric-value">{{ assignment_rate|default(0)|round(1) }}<small class="metric-unit">%</small></div>
+        <div class="progress" role="progressbar" aria-label="Task completion" aria-valuenow="{{ assignment_width|round|int }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" data-width="{{ assignment_width|round(1) }}" style="width:0%"></div></div>
+        <div class="metric-foot">Your completed study tasks</div>
+    </article>
+    <article class="metric-card stat-card">
+        <div class="metric-top"><span>Learning paths</span><span class="metric-icon"><span class="material-symbols-outlined">route</span></span></div>
+        <div class="metric-value">{{ learning_paths|length }}</div>
+        <div class="metric-foot">Active or recently updated paths</div>
+    </article>
+</section>
+
+<div class="dashboard-grid">
+    <div class="dashboard-stack">
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Subject performance</h2><p>Compare your recorded marks by subject.</p></div><span class="panel-tag">Academic records</span></div>
+            <div class="chart-container" style="position:relative;height:260px"><canvas id="subjectChart" role="img" aria-label="Bar chart showing performance by subject"></canvas></div>
+            <p id="chartEmptyMessage" class="empty-state" hidden>No subject performance data is available yet.</p>
+            <script type="application/json" id="subjectChartData">{"subjects": {{ metrics.get('subjects', [])|tojson }}, "scores": {{ metrics.get('scores', [])|tojson }}}</script>
+        </section>
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Study tasks</h2><p>Keep your next steps visible and manageable.</p></div><a class="outline-button" href="{{ url_for('planner') }}">Open planner</a></div>
+            {% if tasks %}
+            <div class="data-list">
+                {% for task in tasks %}
+                <div class="data-row"><div><strong>{{ task['title'] or 'Study task' }}</strong>{% if task['description'] %}<p>{{ task['description'] }}</p>{% endif %}<span class="status-pill {% if task['completed'] %}status-present{% else %}status-late{% endif %}">{% if task['completed'] %}Completed{% else %}Pending{% endif %}</span></div><span class="row-meta">{% if task['due_date'] %}Due {{ task['due_date'] }}{% else %}No due date{% endif %}</span></div>
+                {% endfor %}
+            </div>
+            {% else %}<p class="empty-state">No study tasks to show yet. Add a task in your study planner when you're ready.</p>{% endif %}
+        </section>
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Learning paths</h2><p>Continue working toward your learning goals.</p></div></div>
+            {% if learning_paths %}
+            <div class="data-list">
+                {% for path in learning_paths %}
+                <div class="data-row"><div><strong>{{ path['goal'] or 'Learning path' }}</strong>{% if path['domain_name'] %}<p>{{ path['domain_name'] }}</p>{% endif %}<span class="status-pill">{{ path['status'] or 'In progress' }}</span></div><div>{% if path['target_date'] %}<span class="row-meta">Target {{ path['target_date'] }}</span><br>{% endif %}<a class="btn btn-sm btn-outline-primary" href="{{ url_for('learning_path_detail', path_id=path['id']) }}">View path →</a></div></div>
+                {% endfor %}
+            </div>
+            {% else %}<p class="empty-state">You don't have a learning path yet. Your available learning activities will appear here.</p>{% endif %}
+        </section>
+    </div>
+    <div class="dashboard-stack">
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Focus areas</h2><p>Suggestions based on your current records.</p></div><span class="metric-icon"><span class="material-symbols-outlined">lightbulb</span></span></div>
+            {% if focus_areas %}<div class="data-list">{% for item in focus_areas %}<div class="data-row"><div>{% if item is mapping %}<strong>{{ item.get('subject', item.get('name', 'Focus area')) }}</strong><p>{{ item.get('message', item.get('recommendation', 'Review this area in your study plan.')) }}</p>{% else %}<strong>{{ item }}</strong>{% endif %}</div></div>{% endfor %}</div>{% else %}<p class="empty-state">No focus areas are available right now. Keep your academic records up to date to get more useful guidance.</p>{% endif %}
+        </section>
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Quick access</h2><p>Go straight to a task.</p></div></div>
+            <div class="quick-links">
+                <a class="quick-link" href="{{ url_for('student_attendance') }}"><span class="material-symbols-outlined">co_present</span><span><strong>Attendance</strong><small>Review records</small></span></a>
+                <a class="quick-link" href="{{ url_for('planner') }}"><span class="material-symbols-outlined">checklist</span><span><strong>Study planner</strong><small>Manage tasks</small></span></a>
+                <a class="quick-link" href="{{ url_for('feedback') }}"><span class="material-symbols-outlined">forum</span><span><strong>Feedback</strong><small>Share a thought</small></span></a>
+            </div>
+        </section>
+        <section class="panel">
+            <div class="panel-heading"><div><h2>Notifications</h2><p>Recent updates for your account.</p></div></div>
+            {% if notifications %}<div class="data-list">{% for notification in notifications %}<div class="data-row"><div><strong>{{ notification['title'] or 'Update' }}</strong><p>{{ notification['message'] or notification['body'] or 'There is a new update for you.' }}</p></div><span class="row-meta">{{ notification['created_at'] or '' }}</span></div>{% endfor %}</div>{% else %}<p class="empty-state">You're all caught up. New notifications will appear here.</p>{% endif %}
+        </section>
+    </div>
+</div>
+<section class="panel education-level-promo motion-card">
+  <div class="panel-heading"><div><div class="eyebrow">YOUR ACADEMIC OUTLOOK</div><h2>Understand your education level</h2><p>Explore an estimate based on your recorded marks, attendance and assignment completion.</p></div><a class="button" href="{{ url_for('education_level') }}">View my estimate <span class="material-symbols-outlined">trending_up</span></a></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.progress-bar[data-width]').forEach(function (bar) {
+        const width = Number(bar.dataset.width);
+        bar.style.width = (Number.isFinite(width) ? Math.min(100, Math.max(0, width)) : 0) + '%';
+    });
+    const dataNode = document.getElementById('subjectChartData');
+    const canvas = document.getElementById('subjectChart');
+    const empty = document.getElementById('chartEmptyMessage');
+    if (!dataNode || !canvas || typeof Chart === 'undefined') return;
+    let data = {};
+    try { data = JSON.parse(dataNode.textContent); } catch (_) { data = {}; }
+    if (!Array.isArray(data.subjects) || !data.subjects.length || !Array.isArray(data.scores) || !data.scores.length) { if (empty) empty.hidden = false; canvas.hidden = true; return; }
+    new Chart(canvas, {type:'bar',data:{labels:data.subjects,datasets:[{label:'Performance (%)',data:data.scores,backgroundColor:'rgba(23,72,216,.72)',borderColor:'#1748d8',borderWidth:1,borderRadius:7,maxBarThickness:42}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:850,easing:'easeOutQuart'},scales:{y:{beginAtZero:true,min:0,max:100,grid:{color:'#edf0f8'},ticks:{color:'#697188',callback:function(v){return v+'%';}}},x:{grid:{display:false},ticks:{color:'#697188'}}},plugins:{legend:{display:false}}}});
+});
+</script>
+{% endblock %}

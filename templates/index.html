@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}D-campus | AI Student Performance System{% endblock %}
+
+{% block content %}
+<section class="lp-hero">
+    <div class="lp-hero-copy">
+        <div class="lp-eyebrow"><span class="lp-dot"></span>AI student performance system</div>
+
+        <h1>Predict performance <em>before results arrive.</em></h1>
+
+        <p class="lp-lede">
+            D-campus turns marks, attendance and assignment completion into an
+            early performance forecast for every student, and shows exactly
+            which subjects to work on to improve it.
+        </p>
+
+        <div class="lp-actions">
+            <a class="button" href="{{ url_for('login') }}">Student login <span aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="{{ url_for('admin_login') }}">Admin login <span aria-hidden="true">→</span></a>
+        </div>
+        <p class="lp-note">Secure sign-in for students and administrators. <a href="{{ url_for('how_it_works') }}">See how the prediction works →</a></p>
+    </div>
+
+    <div class="lp-hero-visual" aria-label="Example performance forecast">
+        <div class="lp-forecast">
+            <div class="lp-forecast-head">
+                <div>
+                    <span class="lp-label">Performance forecast</span>
+                    <strong>Sample student</strong>
+                </div>
+                <span class="lp-chip">Illustration</span>
+            </div>
+
+            <div class="lp-forecast-main">
+                <div class="lp-ring" style="--score: 80">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="lp-ring-track" cx="60" cy="60" r="52"/>
+                        <circle class="lp-ring-value" cx="60" cy="60" r="52" pathLength="100"/>
+                    </svg>
+                    <div class="lp-ring-center"><b data-count>80</b><span>/ 100</span></div>
+                </div>
+                <div class="lp-outcome">
+                    <span class="lp-label">Predicted outcome</span>
+                    <strong>On track</strong>
+                    <p>Good academic progress. Raise attendance to move toward the advanced band.</p>
+                </div>
+            </div>
+
+            <ul class="lp-factors">
+                <li>
+                    <div class="lp-factor-top"><span>Internal marks</span><em>60% weight</em><b>82%</b></div>
+                    <div class="lp-bar"><i style="--w: 82%"></i></div>
+                </li>
+                <li>
+                    <div class="lp-factor-top"><span>Attendance</span><em>25% weight</em><b>71%</b></div>
+                    <div class="lp-bar"><i style="--w: 71%"></i></div>
+                </li>
+                <li>
+                    <div class="lp-factor-top"><span>Assignments</span><em>15% weight</em><b>90%</b></div>
+                    <div class="lp-bar"><i style="--w: 90%"></i></div>
+                </li>
+            </ul>
+
+            <div class="lp-flag">
+                <span class="lp-flag-mark" aria-hidden="true">!</span>
+                <div><strong>Focus area: Mathematics at 58%</strong><p>Below the 60% line. Added to the study plan.</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lp-facts" aria-label="What the forecast uses">
+    <div><b>3</b><span>inputs per student: marks, attendance, assignments</span></div>
+    <div><b>4</b><span>outcome bands: Advanced, On track, Developing, Needs support</span></div>
+    <div><b>&lt; 60%</b><span>subject scores are flagged as focus areas automatically</span></div>
+</section>
+
+<section class="lp-section" id="how-it-works">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">How the prediction works</div>
+        <h2>From raw records to a clear next step.</h2>
+        <p>The scoring is transparent. Every student can see which input moved their forecast. <a href="{{ url_for('how_it_works') }}">Read the full method →</a></p>
+    </div>
+
+    <ol class="lp-steps">
+        <li>
+            <span class="lp-step-no">01</span>
+            <h3>Record</h3>
+            <p>Administrators enter subject marks, mark class attendance and log assignment completion for each student.</p>
+        </li>
+        <li>
+            <span class="lp-step-no">02</span>
+            <h3>Predict</h3>
+            <p>A weighted model combines marks (60%), attendance (25%) and assignments (15%) into a performance score, an outcome band and a confidence level.</p>
+        </li>
+        <li>
+            <span class="lp-step-no">03</span>
+            <h3>Improve</h3>
+            <p>Weak subjects surface as focus areas. Students turn them into planner tasks with deadlines and watch the forecast move.</p>
+        </li>
+    </ol>
+</section>
+
+<section class="lp-section lp-split-section">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">Two workspaces</div>
+        <h2>Built for the people on both sides of the result.</h2>
+    </div>
+
+    <div class="lp-split">
+        <article class="lp-audience">
+            <h3>For students</h3>
+            <ul>
+                <li>Personal performance forecast and education-level estimate</li>
+                <li>Subject-wise marks and attendance against the 75% target</li>
+                <li>Study planner with due dates for focus subjects</li>
+                <li>Leave and OD applications, college events and feedback</li>
+            </ul>
+            <a class="button" href="{{ url_for('login') }}">Student login <span aria-hidden="true">→</span></a>
+        </article>
+
+        <article class="lp-audience">
+            <h3>For administrators</h3>
+            <ul>
+                <li>Student accounts, academic records and mark updates</li>
+                <li>Class sessions and attendance marking, with correction requests</li>
+                <li>Review of student leave and OD applications</li>
+                <li>Events and student feedback in one place</li>
+            </ul>
+            <a class="button button-secondary" href="{{ url_for('admin_login') }}">Admin login <span aria-hidden="true">→</span></a>
+        </article>
+    </div>
+</section>
+
+<section class="lp-cta">
+    <div>
+        <h2>Give every student an early warning, and a plan.</h2>
+        <p>Sign in to see the forecast built from real records.</p>
+    </div>
+    <div class="lp-cta-actions">
+        <a class="button" href="{{ url_for('login') }}">Student login</a>
+        <a class="button" href="{{ url_for('register') }}">Create account</a>
+    </div>
+</section>
+{% endblock %}

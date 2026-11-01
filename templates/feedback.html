@@ -1,0 +1,99 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Feedback | D-campus{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-header">
+    <div>
+        <div class="eyebrow">YOUR VOICE MATTERS</div>
+
+        <h1>Feedback</h1>
+
+        <p>
+            Send feedback privately to the platform team.
+        </p>
+    </div>
+</section>
+
+<section class="panel">
+    <form method="post" class="form-stack">
+
+        <label>
+            Topic
+            <input
+                type="text"
+                name="topic"
+                required
+                maxlength="200"
+            >
+        </label>
+
+        <label>
+            Message
+            <textarea
+                name="message"
+                required
+                maxlength="5000"
+                rows="5"
+            ></textarea>
+        </label>
+
+        <label>
+            Career goal (optional)
+            <textarea
+                name="career_goal"
+                rows="2"
+            ></textarea>
+        </label>
+
+        <label>
+            Skills requested (optional)
+            <textarea
+                name="skills_requested"
+                rows="2"
+            ></textarea>
+        </label>
+
+        <button type="submit" class="primary-button">
+            Submit feedback
+        </button>
+
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Your previous feedback</h2>
+
+    {% for item in feedback_items %}
+
+        <article class="card">
+
+            <strong>{{ item.topic }}</strong>
+
+            <span class="task-status">
+                {{ item.status }}
+            </span>
+
+            <p>{{ item.message }}</p>
+
+            <small>{{ item.created_at }}</small>
+
+            {% if item.response %}
+                <p>
+                    <strong>Response:</strong>
+                    {{ item.response }}
+                </p>
+            {% endif %}
+
+        </article>
+
+    {% else %}
+
+        <p>You have not submitted any feedback yet.</p>
+
+    {% endfor %}
+</section>
+
+{% endblock %}

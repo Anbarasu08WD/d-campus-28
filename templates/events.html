@@ -1,0 +1,54 @@
+
+{% extends 'base.html' %}
+
+{% block title %}College Events | D-campus{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-header">
+    <div>
+        <div class="eyebrow">CAMPUS LIFE</div>
+
+        <h1>College events</h1>
+
+        <p>
+            Upcoming scheduled college events.
+        </p>
+    </div>
+</section>
+
+<section class="panel">
+
+    {% for event in events %}
+
+        <article class="card">
+            <h3>{{ event.title }}</h3>
+
+            <p>
+                {{ event.description|default('', true) }}
+            </p>
+
+            <p>
+                <strong>Date:</strong>
+                {{ event.event_date }}
+                · {{ event.start_time }}
+                · {{ event.venue|default(
+                    'Venue to be announced',
+                    true
+                ) }}
+            </p>
+
+            <span class="task-status">
+                {{ event.status }}
+            </span>
+        </article>
+
+    {% else %}
+
+        <p>No upcoming events have been published.</p>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}

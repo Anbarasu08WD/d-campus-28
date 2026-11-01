@@ -1,0 +1,391 @@
+css
+/*
+ * Edu Tracker — Mobile Responsive Styles
+ * File: static/css/responsive.css
+ * Load this file after style.css in base.html.
+ */
+
+:root {
+    --mobile-gutter: 16px;
+}
+
+/* Global responsive safeguards */
+html,
+body {
+    max-width: 100%;
+}
+
+body {
+    overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.app-layout,
+.app-main,
+.page-content,
+.main-content,
+.page-transition,
+main,
+.panel,
+.card {
+    min-width: 0;
+}
+
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive tables */
+.table-wrap,
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table,
+.table-wrapper table {
+    min-width: 620px;
+    border-collapse: collapse;
+}
+
+/* Flexible headings and content rows */
+.dashboard-header,
+.panel-heading,
+.metric-top,
+.focus-row,
+.task-row,
+.task-main,
+.planner-task,
+.domain-card-top,
+.button-group,
+.inline-inputs {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.dashboard-header > *,
+.panel-heading > *,
+.metric-card,
+.card,
+.panel {
+    min-width: 0;
+}
+
+.dashboard-header h1,
+.dashboard-header p,
+.page-description {
+    overflow-wrap: anywhere;
+}
+
+/* Dashboard and card grids */
+.metric-grid,
+.metrics-grid,
+.stats-grid,
+.dashboard-grid,
+.domain-grid,
+.soft-skills-grid,
+.feature-grid,
+.features-grid,
+.overview-grid {
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.metric-card,
+.dashboard-card,
+.domain-card,
+.soft-skill-card {
+    min-width: 0;
+}
+
+/* Forms */
+.form-stack,
+.form-group {
+    min-width: 0;
+}
+
+.form-stack input:not([type="checkbox"]):not([type="radio"]),
+.form-stack select,
+.form-stack textarea,
+.form-group input:not([type="checkbox"]):not([type="radio"]),
+.form-group select,
+.form-group textarea,
+input.table-input,
+select.table-input {
+    max-width: 100%;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    touch-action: manipulation;
+}
+
+/* Public navigation */
+.public-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.public-topbar > .topbar-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Tablet and smaller laptop screens */
+@media (max-width: 900px) {
+    .page-content,
+    .main-content {
+        padding: 22px;
+    }
+
+    .sidebar {
+        width: min(290px, 86vw);
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .app-main {
+        width: 100%;
+        margin-left: 0;
+        min-width: 0;
+    }
+
+    .topbar {
+        gap: 10px;
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-header > a,
+    .dashboard-header > button {
+        align-self: flex-start;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 600px) {
+    :root {
+        --mobile-gutter: 12px;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .page-content,
+    .main-content,
+    .public-content {
+        padding: 16px var(--mobile-gutter);
+    }
+
+    .topbar {
+        min-height: 60px;
+        padding: 9px 12px;
+        gap: 8px;
+    }
+
+    .topbar-actions {
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .mobile-menu-button {
+        flex: 0 0 42px;
+        min-width: 42px;
+        min-height: 42px;
+    }
+
+    .topbar-user {
+        gap: 8px;
+        margin-left: auto;
+        min-width: 0;
+    }
+
+    .topbar-user-name {
+        overflow-wrap: anywhere;
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+    }
+
+    /* Stack dashboard cards on narrow screens */
+    .metric-grid,
+    .metrics-grid,
+    .stats-grid,
+    .dashboard-grid,
+    .domain-grid,
+    .soft-skills-grid,
+    .feature-grid,
+    .features-grid,
+    .overview-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .metric-card,
+    .card,
+    .panel,
+    .domain-card,
+    .soft-skill-card,
+    .dashboard-card {
+        padding: 15px;
+        border-radius: 14px;
+    }
+
+    .dashboard-header {
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .dashboard-header h1 {
+        font-size: clamp(1.55rem, 7vw, 2rem);
+        overflow-wrap: anywhere;
+    }
+
+    .panel-heading {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* Full-width form fields */
+    .form-stack {
+        gap: 12px;
+    }
+
+    .form-stack input:not([type="checkbox"]):not([type="radio"]),
+    .form-stack select,
+    .form-stack textarea,
+    .form-group input:not([type="checkbox"]):not([type="radio"]),
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    input,
+    select,
+    textarea {
+        max-width: 100%;
+    }
+
+    textarea {
+        min-height: 110px;
+    }
+
+    /* Comfortable touch targets */
+    .primary-button,
+    .secondary-button,
+    .outline-button,
+    .danger-button,
+    button.primary-button,
+    button.secondary-button {
+        min-height: 44px;
+    }
+
+    .button-group,
+    .inline-inputs {
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .button-group > a,
+    .button-group > button,
+    .inline-inputs > button {
+        max-width: 100%;
+    }
+
+    /* Login, registration and public pages */
+    .public-topbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .public-topbar > .topbar-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+    }
+
+    .public-topbar > .topbar-actions a {
+        min-width: 0;
+        padding: 9px 8px;
+        overflow-wrap: anywhere;
+        font-size: 0.82rem;
+        text-align: center;
+    }
+
+    .public-topbar > .topbar-actions a:first-child {
+        grid-column: 1 / -1;
+    }
+
+    /* Tables remain usable by scrolling horizontally */
+    .table-wrap,
+    .table-wrapper {
+        border-radius: 10px;
+    }
+
+    .table-wrap th,
+    .table-wrap td,
+    .table-wrapper th,
+    .table-wrapper td {
+        padding: 10px 12px;
+    }
+
+    .site-footer {
+        padding: 18px 12px;
+        text-align: center;
+    }
+}
+
+/* Very narrow phones */
+@media (max-width: 360px) {
+    .public-topbar > .topbar-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .public-topbar > .topbar-actions a:first-child {
+        grid-column: auto;
+    }
+
+    .page-content,
+    .main-content {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}

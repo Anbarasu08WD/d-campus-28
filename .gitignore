@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+student_success.db
+student_success_backup.db
+app_backup.py
+*.backup
+instance/
+.pytest_cache/
+student_success.backup-*.db

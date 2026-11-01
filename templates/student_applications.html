@@ -1,0 +1,159 @@
+ {% extends 'base.html' %}
+
+{% block title %}Leave and OD Applications | D-campus{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <p class="eyebrow">STUDENT SERVICES</p>
+            <h1>Leave and On-Duty Applications</h1>
+            <p class="muted-text">Submit applications and track their approval status.</p>
+        </div>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <h2>Apply for Leave</h2>
+
+                <form method="post">
+                    <input type="hidden" name="application_type" value="leave">
+
+                    <div class="form-group">
+                        <label for="leave_type">Leave type</label>
+                        <select class="form-control" id="leave_type" name="leave_type" required>
+                            <option value="Medical">Medical</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Family">Family</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="leave_start">From date</label>
+                        <input class="form-control" type="date" id="leave_start" name="start_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="leave_end">To date</label>
+                        <input class="form-control" type="date" id="leave_end" name="end_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="leave_reason">Reason</label>
+                        <textarea class="form-control" id="leave_reason" name="reason" rows="4" maxlength="2000" required></textarea>
+                    </div>
+
+                    <button class="primary-button" type="submit">Submit Leave Application</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Apply for On-Duty (OD)</h2>
+
+                <form method="post">
+                    <input type="hidden" name="application_type" value="od">
+
+                    <div class="form-group">
+                        <label for="od_category">OD category</label>
+                        <select class="form-control" id="od_category" name="category" required>
+                            <option value="Official Duty">Official Duty</option>
+                            <option value="Competition">Competition</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="od_start">From date</label>
+                        <input class="form-control" type="date" id="od_start" name="start_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="od_end">To date</label>
+                        <input class="form-control" type="date" id="od_end" name="end_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="od_reason">Purpose / details</label>
+                        <textarea class="form-control" id="od_reason" name="reason" rows="4" maxlength="2000" required></textarea>
+                    </div>
+
+                    <button class="primary-button" type="submit">Submit OD Application</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <h2>My Leave Requests</h2>
+
+            {% if leave_requests %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Admin remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in leave_requests %}
+                        <tr>
+                            <td>{{ item['leave_type'] }}</td>
+                            <td>{{ item['start_date'] }}</td>
+                            <td>{{ item['end_date'] }}</td>
+                            <td>{{ item['reason'] }}</td>
+                            <td>{{ item['status'] }}</td>
+                            <td>{{ item['decision_remarks'] or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="muted-text">You have not submitted any leave requests.</p>
+            {% endif %}
+        </div>
+
+        <div class="card mt-4">
+            <h2>My OD Requests</h2>
+
+            {% if od_requests %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                            <th>Admin remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in od_requests %}
+                        <tr>
+                            <td>{{ item['category'] }}</td>
+                            <td>{{ item['start_date'] }}</td>
+                            <td>{{ item['end_date'] }}</td>
+                            <td>{{ item['reason'] }}</td>
+                            <td>{{ item['status'] }}</td>
+                            <td>{{ item['decision_remarks'] or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="muted-text">You have not submitted any OD requests.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

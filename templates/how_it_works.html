@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}How the prediction works | D-campus{% endblock %}
+
+{% block content %}
+<section class="lp-section hw-intro">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">How the prediction works</div>
+        <h1>How D-campus predicts student performance.</h1>
+        <p>
+            The prediction is a transparent, rule-based score built from three things the
+            college already records. There is no hidden step: every number below is the
+            one the system uses.
+        </p>
+        <div class="lp-actions">
+            <a class="button" href="#try-it">Try the calculator <span aria-hidden="true">↓</span></a>
+            <a class="button button-secondary" href="{{ url_for('login') }}">See my forecast <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" id="signals">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">Step 1 · The three signals</div>
+        <h2>What goes in.</h2>
+        <p>Administrators record marks, attendance and assignments for each subject. The system combines them across all of a student’s subjects.</p>
+    </div>
+
+    <div class="hw-signals">
+        <article class="hw-signal">
+            <div class="hw-weight"><b>60</b><span>%</span></div>
+            <h3>Internal marks</h3>
+            <p>Total marks scored divided by total marks available, across every subject. A 100-mark subject therefore counts more than a 20-mark one.</p>
+            <code>marks scored ÷ marks available × 100</code>
+        </article>
+        <article class="hw-signal">
+            <div class="hw-weight"><b>25</b><span>%</span></div>
+            <h3>Attendance</h3>
+            <p>Classes attended divided by classes held, across every subject. It is an early signal, because attendance usually changes before marks do.</p>
+            <code>classes attended ÷ classes held × 100</code>
+        </article>
+        <article class="hw-signal">
+            <div class="hw-weight"><b>15</b><span>%</span></div>
+            <h3>Assignments</h3>
+            <p>Assignments completed divided by assignments given, across every subject. It shows consistency of study habits.</p>
+            <code>assignments done ÷ assignments given × 100</code>
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" id="formula">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">Step 2 · The formula</div>
+        <h2>How the score is calculated.</h2>
+        <p>Each signal is multiplied by its weight and the three results are added. The weights are fixed and visible. They are a design choice of this project, not learned from data.</p>
+    </div>
+
+    <div class="hw-formula">
+        <div class="hw-formula-line">
+            <span>Performance score</span> =
+            <span>0.60 × Marks</span> +
+            <span>0.25 × Attendance</span> +
+            <span>0.15 × Assignments</span>
+        </div>
+
+        <div class="hw-example">
+            <div class="hw-example-title">Worked example</div>
+            <dl>
+                <div><dt>Marks 82%</dt><dd>82 × 0.60 = <b>49.20</b></dd></div>
+                <div><dt>Attendance 71%</dt><dd>71 × 0.25 = <b>17.75</b></dd></div>
+                <div><dt>Assignments 90%</dt><dd>90 × 0.15 = <b>13.50</b></dd></div>
+                <div class="hw-total"><dt>Performance score</dt><dd><b>80.45</b> (shown as 80.5) → <em>On track</em></dd></div>
+            </dl>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" id="try-it">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">Try it yourself</div>
+        <h2>Move the sliders and watch the forecast change.</h2>
+        <p>This calculator uses the same weights and bands as the real system. Nothing you enter here is saved.</p>
+    </div>
+
+    <div class="hw-calc" id="hw-calc" data-band="track">
+        <form class="hw-inputs" onsubmit="return false;" aria-label="Performance calculator inputs">
+            <label class="hw-slider">
+                <span class="hw-slider-top"><span>Internal marks</span><output id="out-marks">75%</output></span>
+                <input type="range" id="in-marks" min="0" max="100" step="1" value="75">
+            </label>
+            <label class="hw-slider">
+                <span class="hw-slider-top"><span>Attendance</span><output id="out-attendance">80%</output></span>
+                <input type="range" id="in-attendance" min="0" max="100" step="1" value="80">
+            </label>
+            <label class="hw-slider">
+                <span class="hw-slider-top"><span>Assignments completed</span><output id="out-assignments">70%</output></span>
+                <input type="range" id="in-assignments" min="0" max="100" step="1" value="70">
+            </label>
+            <p class="hw-lever" id="hw-lever" aria-live="polite"></p>
+        </form>
+
+        <div class="lp-forecast">
+            <div class="lp-forecast-main">
+                <div class="lp-ring" id="hw-ring" style="--score: 75.5">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="lp-ring-track" cx="60" cy="60" r="52"/>
+                        <circle class="lp-ring-value" cx="60" cy="60" r="52" pathLength="100"/>
+                    </svg>
+                    <div class="lp-ring-center"><b id="hw-score">75.5</b><span>/ 100</span></div>
+                </div>
+                <div class="lp-outcome">
+                    <span class="lp-label">Predicted outcome</span>
+                    <strong id="hw-band">On track</strong>
+                    <p id="hw-label">Good academic progress.</p>
+                </div>
+            </div>
+
+            <ul class="lp-factors">
+                <li>
+                    <div class="lp-factor-top"><span>Marks contribution</span><em>60% weight</em><b id="pts-marks">45.0 pts</b></div>
+                    <div class="lp-bar"><i id="bar-marks" style="--w: 75%"></i></div>
+                </li>
+                <li>
+                    <div class="lp-factor-top"><span>Attendance contribution</span><em>25% weight</em><b id="pts-attendance">20.0 pts</b></div>
+                    <div class="lp-bar"><i id="bar-attendance" style="--w: 80%"></i></div>
+                </li>
+                <li>
+                    <div class="lp-factor-top"><span>Assignments contribution</span><em>15% weight</em><b id="pts-assignments">10.5 pts</b></div>
+                    <div class="lp-bar"><i id="bar-assignments" style="--w: 70%"></i></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="lp-section" id="bands">
+    <div class="lp-section-head">
+        <div class="lp-eyebrow">Step 3 · The outcome</div>
+        <h2>From a score to a band, a focus list and a confidence level.</h2>
+    </div>
+
+    <div class="hw-bands">
+        <article class="hw-band-card" data-band="advanced"><b>85+</b><h3>Advanced progress</h3><p>Strong academic progress. Keep the habits that are working.</p></article>
+        <article class="hw-band-card" data-band="track"><b>70 – 84.9</b><h3>On track</h3><p>Steady progress. Strengthen the subjects with the lowest marks.</p></article>
+        <article class="hw-band-card" data-band="developing"><b>50 – 69.9</b><h3>Developing</h3><p>Progress needs attention. Focus on attendance and assignments.</p></article>
+        <article class="hw-band-card" data-band="support"><b>Below 50</b><h3>Needs support</h3><p>A focused improvement plan is recommended.</p></article>
+    </div>
+
+    <div class="hw-extras">
+        <article class="lp-audience">
+            <h3>Focus areas</h3>
+            <p>Any subject scoring below 60% is flagged as a focus area. Students can turn each one into a task with a due date in the study planner.</p>
+        </article>
+        <article class="lp-audience">
+            <h3>Confidence level</h3>
+            <p>The estimate is marked <strong>Limited</strong> confidence when fewer than three subjects are recorded and <strong>Moderate</strong> from three subjects up. More records make the estimate more useful.</p>
+        </article>
+        <article class="lp-audience">
+            <h3>No records yet</h3>
+            <p>If nothing has been recorded for a student, the system shows “Not enough data” instead of guessing.</p>
+        </article>
+    </div>
+</section>
+
+<section class="lp-section" id="limits">
+    <div class="hw-honest">
+        <h2>What this prediction is, and what it isn’t.</h2>
+        <ul>
+            <li><strong>It is</strong> an explainable estimate of current academic progress, computed from the records the college has entered.</li>
+            <li><strong>It is not</strong> a guarantee of exam results or an official qualification, and it does not use information beyond marks, attendance and assignments.</li>
+            <li><strong>It is only as good as the records.</strong> Out-of-date or missing entries lead to a less accurate estimate.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="lp-cta">
+    <div>
+        <h2>See your own forecast.</h2>
+        <p>Sign in to view the score built from your recorded marks, attendance and assignments.</p>
+    </div>
+    <div class="lp-cta-actions">
+        <a class="button" href="{{ url_for('login') }}">Student login</a>
+        <a class="button" href="{{ url_for('register') }}">Create account</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var calc = document.getElementById('hw-calc');
+    if (!calc) { return; }
+
+    var WEIGHTS = { marks: 0.60, attendance: 0.25, assignments: 0.15 };
+    var KEYS = ['marks', 'attendance', 'assignments'];
+    var NAMES = { marks: 'marks', attendance: 'attendance', assignments: 'assignments' };
+
+    function bandFor(score) {
+        if (score >= 85) { return { key: 'advanced', name: 'Advanced progress', label: 'Strong academic progress.' }; }
+        if (score >= 70) { return { key: 'track', name: 'On track', label: 'Good academic progress.' }; }
+        if (score >= 50) { return { key: 'developing', name: 'Developing', label: 'Progress needs attention.' }; }
+        return { key: 'support', name: 'Needs support', label: 'A focused improvement plan is recommended.' };
+    }
+
+    function update() {
+        var values = {};
+        var score = 0;
+        KEYS.forEach(function (key) {
+            var v = Number(document.getElementById('in-' + key).value) || 0;
+            values[key] = v;
+            document.getElementById('out-' + key).textContent = v + '%';
+            var points = v * WEIGHTS[key];
+            score += points;
+            document.getElementById('pts-' + key).textContent = points.toFixed(1) + ' pts';
+            document.getElementById('bar-' + key).style.setProperty('--w', (points / (100 * WEIGHTS[key]) * 100) + '%');
+        });
+
+        var band = bandFor(score);
+        calc.setAttribute('data-band', band.key);
+        var shown = Math.round((score + 1e-9) * 10) / 10;
+        document.getElementById('hw-score').textContent = shown.toFixed(1);
+        document.getElementById('hw-ring').style.setProperty('--score', String(shown));
+        document.getElementById('hw-band').textContent = band.name;
+        document.getElementById('hw-label').textContent = band.label;
+
+        var best = null;
+        var bestGain = 0;
+        KEYS.forEach(function (key) {
+            var gain = (100 - values[key]) * WEIGHTS[key];
+            if (gain > bestGain) { bestGain = gain; best = key; }
+        });
+        var lever = document.getElementById('hw-lever');
+        if (best === null) {
+            lever.textContent = 'Every signal is at 100%, so this is the highest possible score.';
+        } else {
+            lever.textContent = 'Biggest lever: raising ' + NAMES[best] + ' to 100% would add ' + bestGain.toFixed(1) + ' points.';
+        }
+    }
+
+    KEYS.forEach(function (key) {
+        document.getElementById('in-' + key).addEventListener('input', update);
+    });
+    update();
+})();
+</script>
+{% endblock %}
