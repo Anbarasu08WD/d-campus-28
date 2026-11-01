@@ -172,7 +172,6 @@ def role_home():
         return redirect(url_for("login"))
     return redirect(url_for(endpoint))
 
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -197,35 +196,52 @@ def register():
         db = get_db()
 
         try:
+            existing_user = db.execute(
+                "SELECT id FROM users WHERE LOWER(email) = ?",
+                (email,),
+            ).fetchone()
+
+            if existing_user:
+                flash("That email is already registered.", "warning")
+                return render_template("register.html")
+
             cursor = db.execute(
                 """
                 INSERT INTO users (name, email, password_hash, role)
                 VALUES (?, ?, ?, 'student')
+                RETURNING id
                 """,
                 (name, email, generate_password_hash(password)),
             )
 
-            student_id = cursor.lastrowid
+            student_id = cursor.fetchone()["id"]
 
-            # Optional profile fields are stored only after the
-            # profile table is created in the database migration.
-            try:
-                db.execute(
-                    """
-                    INSERT INTO student_profiles
-                        (user_id, college, registration_no)
-                    VALUES (?, ?, ?)
-                    """,
-                    (student_id, college, registration_no),
-                )
-            except psycopg.OperationalError:
-                pass
+            db.execute(
+                """
+                INSERT INTO student_profiles
+                    (user_id, college, registration_no)
+                VALUES (?, ?, ?)
+                """,
+                (student_id, college, registration_no),
+            )
 
             db.commit()
 
-        except psycopg.IntegrityError:
+        except psycopg.IntegrityError as e:
             db.rollback()
-            flash("That email is already registered.", "warning")
+            app.logger.exception("Registration integrity error")
+
+            if getattr(e, "sqlstate", None) == "23505":
+                flash("That email or registration number is already in use.", "warning")
+            else:
+                flash("Unable to create your account due to a database constraint.", "danger")
+
+            return render_template("register.html")
+
+        except psycopg.Error:
+            db.rollback()
+            app.logger.exception("Registration database error")
+            flash("A database error occurred. Please try again.", "danger")
             return render_template("register.html")
 
         flash("Account created. You can now log in.", "success")
